@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:id="@+id/ll_item"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:background="@color/white"
+    android:paddingTop="5dp"
+    android:gravity="center">
+
+    <ImageView
+        android:id="@+id/iv_thumb"
+        android:layout_width="85dp"
+        android:layout_height="108dp"
+        android:scaleType="fitCenter"
+        android:contentDescription="Book Picture"
+        tools:src="@drawable/c_primer_plus" />
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/tv_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            tools:text="C Primer Plus (Developer's Library) 6th Edition" />
+        <TextView
+            android:id="@+id/tv_author"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            android:textColor="@color/gray"
+            android:textSize="14sp"
+            tools:text="Thomas H. Cormen, Charles E. Leiserson, …(2 more)" />
+        <TextView
+            android:id="@+id/tv_is_available"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            android:textColor="@color/red"
+            android:textSize="14sp"
+            tools:text="Not in the library: borrowed by [USERNAME]" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_borrow"
+                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="Borrow"
+                android:layout_margin="3dp"
+                android:textColor="@color/black"
+                android:textSize="17sp" />
+            <Button
+                android:id="@+id/btn_return"
+                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:layout_margin="3dp"
+                android:text="Return"
+                android:textColor="@color/black"
+                android:textSize="17sp" />
+
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:orientation="horizontal">
+
+
+
+    </LinearLayout>
+
+</LinearLayout>
