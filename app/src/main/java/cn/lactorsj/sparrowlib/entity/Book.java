@@ -6,23 +6,13 @@ import cn.lactorsj.sparrowlib.R;
 
 public class Book {
     public int id;
-    // 名称
     public String name;
-    // 描述
     public String author;
-    // 价格
-    public int isAvailable;
-    // 大图的保存路径
+    public int isAvailable; // is the book in the library(1) or borrowed(0)
+    public int pic; // the index in the mPicArray
+    public String borrowBy; // the username whom borrow the book
 
-    // 大图的资源编号
-    public int pic;
-    public String borrowBy;
-
-    // 声明一个手机商品的名称数组
-
-
-
-    private static String[] mNameArray = {
+    private static final String[] mNameArray = {
             "C Primer Plus (Developer's Library) 6th Edition",
             "The Software Engineer's Guidebook",
             "Fluent Python 2nd Edition",
@@ -30,8 +20,7 @@ public class Book {
             "Introduction to Algorithms 4th Edition",
             "Game Programming Patterns"
     };
-    // 声明一个手机商品的描述数组
-    private static String[] mAuthorArray = {
+    private static final String[] mAuthorArray = {
             "Stephen Prata",
             "Gergely Orosz",
             "Luciano Ramalho",
@@ -40,7 +29,7 @@ public class Book {
             "Robert Nystrom"
     };
 
-    private static int[] mPicArray = {
+    private static final int[] mPicArray = {
             R.drawable.c_primer_plus,
             R.drawable.the_software_engineers_guidebook,
             R.drawable.fluent_python,
@@ -49,7 +38,6 @@ public class Book {
             R.drawable.game_programming_patterns
     };
 
-    // 获取默认的信息列表
     public static ArrayList<Book> getDefaultList() {
         ArrayList<Book> list = new ArrayList<>();
         for (int i = 0; i < mNameArray.length; i++) {

@@ -1,24 +1,22 @@
 package cn.lactorsj.sparrowlib;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
-import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
+import java.util.Objects;
 
 import cn.lactorsj.sparrowlib.database.UserDatabaseHelper;
 import cn.lactorsj.sparrowlib.entity.User;
@@ -37,7 +35,7 @@ public class RegisterActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar_register);
         setSupportActionBar(toolbar);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
         Button btn_register = findViewById(R.id.btn_register);
         EditText et_username = findViewById(R.id.et_username);
@@ -72,30 +70,23 @@ public class RegisterActivity extends AppCompatActivity {
             return false;
         });
 
-        btn_register.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String username = et_username.getText().toString();
-                String password = et_password.getText().toString();
-                String retype_password = et_retype_password.getText().toString();
+        btn_register.setOnClickListener(v -> {
+            String username = et_username.getText().toString();
+            String password = et_password.getText().toString();
+            String retype_password = et_retype_password.getText().toString();
 
-                if (!password.equals(retype_password)) {
-                    Toast.makeText(RegisterActivity.this, "Password do not match", Toast.LENGTH_SHORT).show();
-                } else if (checkUsernameExist(username)) {
-                    Toast.makeText(RegisterActivity.this, "User already exists", Toast.LENGTH_SHORT).show();
-                } else {
-                    createUser(username, password);
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            getOnBackPressedDispatcher().onBackPressed();
-                            finish();
-                        }
-                    }, 1000);
-                }
+            if (!password.equals(retype_password)) {
+                Toast.makeText(RegisterActivity.this, "Password do not match", Toast.LENGTH_SHORT).show();
+            } else if (checkUsernameExist(username)) {
+                Toast.makeText(RegisterActivity.this, "User already exists", Toast.LENGTH_SHORT).show();
+            } else {
+                createUser(username, password);
+                new Handler().postDelayed(() -> {
+                    getOnBackPressedDispatcher().onBackPressed();
+                    finish();
+                }, 1000);
             }
         });
-
 
     }
 

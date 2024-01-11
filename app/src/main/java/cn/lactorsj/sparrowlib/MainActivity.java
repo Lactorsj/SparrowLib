@@ -1,9 +1,6 @@
 package cn.lactorsj.sparrowlib;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -15,6 +12,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,14 +27,10 @@ import cn.lactorsj.sparrowlib.entity.User;
 public class MainActivity extends AppCompatActivity {
 
     private MyApplication app;
-    private Context context;
     private LinearLayout ll_home;
     private UserDatabaseHelper UserDBHelper;
     private BookDatabaseHelper BookDBHelper;
     private boolean backPressedOnce = false;
-    private TextView tv_is_available;
-    private Button btn_borrow;
-    private Button btn_return;
     private List<View> book_views;
 
     @Override
@@ -67,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /** @noinspection deprecation*/
     @SuppressLint("MissingSuperCall")
     public void onBackPressed() {
         if (backPressedOnce) {
@@ -103,13 +99,13 @@ public class MainActivity extends AppCompatActivity {
         book_views = new ArrayList<>();
         for (Book info : list) {
             // 获取布局文件item_goods.xml的根视图
-            View view = LayoutInflater.from(this).inflate(R.layout.element_item_book, null);
+            @SuppressLint("InflateParams") View view = LayoutInflater.from(this).inflate(R.layout.element_item_book, null);
             ImageView iv_thumb = view.findViewById(R.id.iv_thumb);
             TextView tv_name = view.findViewById(R.id.tv_name);
             TextView tv_author = view.findViewById(R.id.tv_author);
-            tv_is_available = view.findViewById(R.id.tv_is_available);
-            btn_borrow = view.findViewById(R.id.btn_borrow);
-            btn_return = view.findViewById(R.id.btn_return);
+            TextView tv_is_available = view.findViewById(R.id.tv_is_available);
+            Button btn_borrow = view.findViewById(R.id.btn_borrow);
+            Button btn_return = view.findViewById(R.id.btn_return);
 
             // 给控件设置值
             iv_thumb.setImageResource(info.pic);
@@ -120,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
                 if (info.isAvailable == 1) {
                     btn_return.setEnabled(false);
                     btn_borrow.setEnabled(true);
-                    tv_is_available.setText("Currently in library");
+                    tv_is_available.setText(R.string.available);
                     tv_is_available.setTextColor(Color.GRAY);
                 } else {
                     btn_borrow.setEnabled(false);
@@ -132,9 +128,9 @@ public class MainActivity extends AppCompatActivity {
                 if (info.id != user.book && info.isAvailable == 1) {
                     btn_borrow.setEnabled(false);
                     btn_return.setEnabled(false);
-                    tv_is_available.setText("You can only borrow one book");
+                    tv_is_available.setText(R.string.return_first);
                     tv_is_available.setTextColor(Color.RED);
-                } else if (info.id != user.book && info.isAvailable == 0){
+                } else if (info.id != user.book && info.isAvailable == 0) {
                     btn_borrow.setEnabled(false);
                     btn_return.setEnabled(false);
                     tv_is_available.setText(String.format("Not in library: borrowed by %s", info.borrowBy));
@@ -142,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     btn_borrow.setEnabled(false);
                     btn_return.setEnabled(true);
-                    tv_is_available.setText("Borrowed by you");
+                    tv_is_available.setText(R.string.borrowed_by_you);
                     tv_is_available.setTextColor(Color.GRAY);
                 }
             }
@@ -164,13 +160,13 @@ public class MainActivity extends AppCompatActivity {
                     if (list.get(i).isAvailable == 1 && i != info.id - 1) {
                         btn_view_borrow.setEnabled(false);
                         btn_view_return.setEnabled(false);
-                        tv_view_is_available.setText("You can only borrow one book");
+                        tv_view_is_available.setText(R.string.return_first);
                         tv_view_is_available.setTextColor(Color.RED);
                     }
                     if (i == info.id - 1) {
                         btn_view_borrow.setEnabled(false);
                         btn_view_return.setEnabled(true);
-                        tv_view_is_available.setText("Borrowed by you");
+                        tv_view_is_available.setText(R.string.borrowed_by_you);
                         tv_view_is_available.setTextColor(Color.GRAY);
                     }
                 }
@@ -192,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
                     if (list.get(i).isAvailable == 1 || i == info.id - 1) {
                         btn_view_borrow.setEnabled(true);
                         btn_view_return.setEnabled(false);
-                        tv_view_is_available.setText("Currently in library");
+                        tv_view_is_available.setText(R.string.available);
                         tv_view_is_available.setTextColor(Color.GRAY);
                     }
                 }

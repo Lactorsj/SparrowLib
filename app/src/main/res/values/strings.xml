@@ -2,4 +2,7 @@
     <string name="app_name">SparrowLib</string>
     <string name="slogan">Small but Powerful</string>
     <string name="copyright">© Sparrow, Developed by @Lactorsj</string>
+    <string name="available">Currently in library</string>
+    <string name="return_first">You can only borrow one book</string>
+    <string name="borrowed_by_you">Borrowed by you</string>
 </resources>

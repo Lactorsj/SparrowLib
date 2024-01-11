@@ -1,27 +1,23 @@
 package cn.lactorsj.sparrowlib;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.view.KeyEvent;
-import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import java.util.Objects;
 
 import cn.lactorsj.sparrowlib.database.UserDatabaseHelper;
-import cn.lactorsj.sparrowlib.entity.User;
 
 
 public class LoginActivity extends AppCompatActivity {
@@ -87,9 +83,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private boolean validateUser(String username, String password) {
 
-        SQLiteDatabase db = mHelper.openWriteLink();
-
-        try {
+        try (SQLiteDatabase db = mHelper.openWriteLink()) {
             String[] projection = {
                     UserDatabaseHelper.COLUMN_USERNAME,
                     UserDatabaseHelper.COLUMN_PASSWORD
@@ -118,11 +112,7 @@ public class LoginActivity extends AppCompatActivity {
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
-        } finally {
-            db.close();
         }
-
-
     }
 
     @Override
@@ -130,10 +120,5 @@ public class LoginActivity extends AppCompatActivity {
         super.onStart();
         mHelper = UserDatabaseHelper.getInstance(this);
         mHelper.openReadLink();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
     }
 }

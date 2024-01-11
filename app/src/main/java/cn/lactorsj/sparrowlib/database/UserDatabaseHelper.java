@@ -5,12 +5,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
-
-import java.util.List;
 
 import cn.lactorsj.sparrowlib.MyApplication;
-import cn.lactorsj.sparrowlib.entity.Book;
 import cn.lactorsj.sparrowlib.entity.User;
 
 public class UserDatabaseHelper extends SQLiteOpenHelper {
@@ -78,7 +74,7 @@ public class UserDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(TABLE_CREATE);
     }
 
-    public long insert(User user){
+    public long insert(User user) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(COLUMN_USERNAME, user.username);
         contentValues.put(COLUMN_PASSWORD, user.password);
@@ -87,7 +83,7 @@ public class UserDatabaseHelper extends SQLiteOpenHelper {
         return mWDB.insert(TABLE_NAME, null, contentValues);
     }
 
-    public User queryUserByUsername(String username){
+    public User queryUserByUsername(String username) {
         User user = null;
         Cursor cursor = mRDB.query(TABLE_NAME, null, "username=?", new String[]{username}, null, null, null);
         if (cursor.moveToNext()) {
@@ -112,14 +108,14 @@ public class UserDatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_PASSWORD, user.password);
         values.put(COLUMN_STATUS, 0); // Cannot borrow book
         values.put(COLUMN_BOOK, book_id);
-        int a = mRDB.update(TABLE_NAME, values, "username=?", new String[]{username});
-        return a;
+        return mRDB.update(TABLE_NAME, values, "username=?", new String[]{username});
     }
+
     public int returnBookByUser(int book_id) {
         app = MyApplication.getInstance();
         String username = app.infoMap.get("username");
         User user = queryUserByUsername(username);
-        if (user.book != book_id){
+        if (user.book != book_id) {
             return 0;
         }
         ContentValues values = new ContentValues();
@@ -128,17 +124,14 @@ public class UserDatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_PASSWORD, user.password);
         values.put(COLUMN_STATUS, 1); // Cannot borrow book
         values.put(COLUMN_BOOK, 0);
-        int a = mRDB.update(TABLE_NAME, values, "username=?", new String[]{username});
-        return a;
+        return mRDB.update(TABLE_NAME, values, "username=?", new String[]{username});
     }
 
-    public boolean getCurrentUserStatus(){
+    public boolean getCurrentUserStatus() {
         app = MyApplication.getInstance();
         User user = queryUserByUsername(app.infoMap.get("username"));
-        if (user.status == 1) return true;
-        return false;
+        return user.status == 1;
     }
-
 
 
     @Override

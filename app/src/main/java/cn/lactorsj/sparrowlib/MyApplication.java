@@ -1,7 +1,6 @@
 package cn.lactorsj.sparrowlib;
 
 import android.app.Application;
-import android.util.Log;
 
 import java.util.HashMap;
 import java.util.List;
@@ -9,7 +8,6 @@ import java.util.List;
 import cn.lactorsj.sparrowlib.database.BookDatabaseHelper;
 import cn.lactorsj.sparrowlib.database.UserDatabaseHelper;
 import cn.lactorsj.sparrowlib.entity.Book;
-import cn.lactorsj.sparrowlib.entity.User;
 import cn.lactorsj.sparrowlib.util.SharedUtil;
 
 
@@ -30,7 +28,6 @@ public class MyApplication extends Application {
 
         super.onCreate();
         mApp = this;
-//        Log.d("Jeffrey", "MyApplication onCreate() called");
         infoMap = new HashMap<>();
         initBooksInfo();
     }
@@ -39,6 +36,7 @@ public class MyApplication extends Application {
         boolean first = SharedUtil.getInstance(this).readBoolean("first", true);
         if (first) {
             bookDatabaseHelper = BookDatabaseHelper.getInstance(this);
+            userDatabaseHelper = UserDatabaseHelper.getInstance(this);
             List<Book> list = Book.getDefaultList();
             bookDatabaseHelper.openWriteLink();
             bookDatabaseHelper.insertBooksInfo(list);
@@ -49,8 +47,8 @@ public class MyApplication extends Application {
 
     @Override
     public void onTerminate() {
-//        userDatabaseHelper.closeLink();
-//        bookDatabaseHelper.closeLink();
+        userDatabaseHelper.closeLink();
+        bookDatabaseHelper.closeLink();
         super.onTerminate();
     }
 }
