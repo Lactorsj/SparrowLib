@@ -6,7 +6,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -17,10 +16,13 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import cn.lactorsj.sparrowlib.database.BookDatabaseHelper;
+import cn.lactorsj.sparrowlib.database.UserDatabaseHelper;
 import cn.lactorsj.sparrowlib.entity.Book;
+import cn.lactorsj.sparrowlib.entity.User;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -28,12 +30,13 @@ public class MainActivity extends AppCompatActivity {
     private MyApplication app;
     private Context context;
     private LinearLayout ll_home;
-    private BookDatabaseHelper mDBHelper;
+    private UserDatabaseHelper UserDBHelper;
+    private BookDatabaseHelper BookDBHelper;
     private boolean backPressedOnce = false;
-    private int flag = 1;
     private TextView tv_is_available;
     private Button btn_borrow;
     private Button btn_return;
+    private List<View> book_views;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,13 +47,24 @@ public class MainActivity extends AppCompatActivity {
 
         TextView tv_hello = findViewById(R.id.tv_hello);
         tv_hello.setText(String.format("Hello! %s", app.infoMap.get("username")));
-        mDBHelper = BookDatabaseHelper.getInstance(this);
-        mDBHelper.openReadLink();
-        mDBHelper.openWriteLink();
+        BookDBHelper = BookDatabaseHelper.getInstance(this);
+        UserDBHelper = UserDatabaseHelper.getInstance(this);
+        BookDBHelper.openReadLink();
+        BookDBHelper.openWriteLink();
+        UserDBHelper.openWriteLink();
+        UserDBHelper.openReadLink();
+
 
         ll_home = findViewById(R.id.ll_home);
         // 从数据库查询出商品信息，并展示
         showBooks();
+
+        Button btn_log_out = findViewById(R.id.btn_log_out);
+        btn_log_out.setOnClickListener(v -> {
+            app.infoMap.remove("username");
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
+        });
     }
 
     @SuppressLint("MissingSuperCall")
@@ -77,29 +91,16 @@ public class MainActivity extends AppCompatActivity {
         startActivity(homeIntent);
     }
 
-//    private void updateButton() {
-//        if (flag == 1) {
-//            btn_borrow_or_return.setEnabled(true);
-//            tv_is_available.setText("Currently in library");
-//            tv_is_available.setTextColor(getColor(R.color.gray));
-//            btn_borrow_or_return.setText("Borrow Now");
-//
-//        } else if (flag == 0) {
-//            btn_borrow_or_return.setEnabled(true);
-//            tv_is_available.setText("Not in library: Borrowed by you");
-//            tv_is_available.setTextColor(getColor(R.color.gray));
-//            btn_borrow_or_return.setText("Return Now");
-//        }
-//    }
-
     private void showBooks() {
-        // 商品条目是一个线性布局，设置布局的宽度为屏幕的一半
+
         // 查询商品数据库中的所有商品记录
-        List<Book> list = mDBHelper.queryAllBooksInfo();
+        List<Book> list = BookDBHelper.queryAllBooksInfo();
+
+        User user = UserDBHelper.queryUserByUsername(app.infoMap.get("username"));
 
         // 移除下面的所有子视图
         ll_home.removeAllViews();
-
+        book_views = new ArrayList<>();
         for (Book info : list) {
             // 获取布局文件item_goods.xml的根视图
             View view = LayoutInflater.from(this).inflate(R.layout.element_item_book, null);
@@ -115,80 +116,92 @@ public class MainActivity extends AppCompatActivity {
             tv_name.setText(info.name);
             tv_author.setText(info.author);
 
-            if (info.isAvailable == 1) {
-                flag = 1; // can borrow
-                btn_return.setEnabled(false);
-                btn_borrow.setEnabled(true);
-                tv_is_available.setText("Currently in library");
-                tv_is_available.setTextColor(Color.GRAY);
-            } else if (info.isAvailable == 0 && info.borrowBy.equals(app.infoMap.get("username"))) {
-                flag = 0; // can return
-                btn_borrow.setEnabled(false);
-                btn_return.setEnabled(true);
-                tv_is_available.setText("Not in library: borrowed by you.");
-                tv_is_available.setTextColor(Color.RED);
+            if (UserDBHelper.getCurrentUserStatus()) {//Can borrow books
+                if (info.isAvailable == 1) {
+                    btn_return.setEnabled(false);
+                    btn_borrow.setEnabled(true);
+                    tv_is_available.setText("Currently in library");
+                    tv_is_available.setTextColor(Color.GRAY);
+                } else {
+                    btn_borrow.setEnabled(false);
+                    btn_return.setEnabled(false);
+                    tv_is_available.setText(String.format("Not in library: borrowed by %s", info.borrowBy));
+                    tv_is_available.setTextColor(Color.RED);
+                }
             } else {
-                flag = -1; // cannot do anything
-                btn_return.setEnabled(false);
-                btn_borrow.setEnabled(false);
-                tv_is_available.setText(String.format("Not in library: borrowed by %s", info.borrowBy));
+                if (info.id != user.book && info.isAvailable == 1) {
+                    btn_borrow.setEnabled(false);
+                    btn_return.setEnabled(false);
+                    tv_is_available.setText("You can only borrow one book");
+                    tv_is_available.setTextColor(Color.RED);
+                } else if (info.id != user.book && info.isAvailable == 0){
+                    btn_borrow.setEnabled(false);
+                    btn_return.setEnabled(false);
+                    tv_is_available.setText(String.format("Not in library: borrowed by %s", info.borrowBy));
+                    tv_is_available.setTextColor(Color.RED);
+                } else {
+                    btn_borrow.setEnabled(false);
+                    btn_return.setEnabled(true);
+                    tv_is_available.setText("Borrowed by you");
+                    tv_is_available.setTextColor(Color.GRAY);
+                }
             }
 
+
             btn_borrow.setOnClickListener(v -> {
-                if (mDBHelper.borrowBook(info.id) > 0) {
+                if (BookDBHelper.borrowBook(info.id) > 0 && UserDBHelper.borrowBookByUser(info.id) > 0) {
                     Toast.makeText(this, "Borrowed Successful!", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(this, "Borrowed Failed", Toast.LENGTH_SHORT).show();
                 }
-                flag = 0;
-                btn_borrow.setEnabled(false);
-                btn_return.setEnabled(true);
-                recreate();
+
+                int view_cnt = book_views.size();
+
+                for (int i = 0; i < view_cnt; i++) {
+                    Button btn_view_borrow = book_views.get(i).findViewById(R.id.btn_borrow);
+                    Button btn_view_return = book_views.get(i).findViewById(R.id.btn_return);
+                    TextView tv_view_is_available = book_views.get(i).findViewById(R.id.tv_is_available);
+                    if (list.get(i).isAvailable == 1 && i != info.id - 1) {
+                        btn_view_borrow.setEnabled(false);
+                        btn_view_return.setEnabled(false);
+                        tv_view_is_available.setText("You can only borrow one book");
+                        tv_view_is_available.setTextColor(Color.RED);
+                    }
+                    if (i == info.id - 1) {
+                        btn_view_borrow.setEnabled(false);
+                        btn_view_return.setEnabled(true);
+                        tv_view_is_available.setText("Borrowed by you");
+                        tv_view_is_available.setTextColor(Color.GRAY);
+                    }
+                }
             });
 
 
             btn_return.setOnClickListener(v -> {
-                if (mDBHelper.returnBook(info.id) > 0) {
+                if (BookDBHelper.returnBook(info.id) > 0 && UserDBHelper.returnBookByUser(info.id) > 0) {
                     Toast.makeText(this, "Returned Successful!", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(this, "Returned Failed", Toast.LENGTH_SHORT).show();
                 }
-                flag = 0;
-                btn_return.setEnabled(false);
-                btn_borrow.setEnabled(true);
-                recreate();
+
+                int view_cnt = book_views.size();
+                for (int i = 0; i < view_cnt; i++) {
+                    Button btn_view_borrow = book_views.get(i).findViewById(R.id.btn_borrow);
+                    Button btn_view_return = book_views.get(i).findViewById(R.id.btn_return);
+                    TextView tv_view_is_available = book_views.get(i).findViewById(R.id.tv_is_available);
+                    if (list.get(i).isAvailable == 1 || i == info.id - 1) {
+                        btn_view_borrow.setEnabled(true);
+                        btn_view_return.setEnabled(false);
+                        tv_view_is_available.setText("Currently in library");
+                        tv_view_is_available.setTextColor(Color.GRAY);
+                    }
+                }
             });
 
-//            updateButton();
-
-//            if (info.isAvailable == 0 && !info.borrowBy.equals(app.infoMap.get("username"))) {
-//                flag = -1;
-//                tv_is_available.setText(String.format("Not in library: borrowed by %s", info.borrowBy));
-//                btn_borrow_or_return.setText("Not Available");
-//                btn_borrow_or_return.setEnabled(false);
-//            }
-//
-//            btn_borrow_or_return.setOnClickListener(v -> {
-//                if (flag == 1) {
-//                    if (mDBHelper.borrowBook(info.id) > 0) {
-//                        Toast.makeText(this, "Borrowed Successful!", Toast.LENGTH_SHORT).show();
-//                    } else {
-//                        Toast.makeText(this, "Borrowed Failed", Toast.LENGTH_SHORT).show();
-//                    }
-//                    flag = 0;
-//                } else if (flag == 0) {
-//                    if (mDBHelper.returnBook(info.id) > 0) {
-//                        Toast.makeText(this, "Returned Successful!", Toast.LENGTH_SHORT).show();
-//                    } else {
-//                        Toast.makeText(this, "Returned Failed", Toast.LENGTH_SHORT).show();
-//                    }
-//                    flag = 1;
-//                }
-//                updateButton();
-//            });
 
             ll_home.addView(view);
-
+            book_views.add(view);
         }
     }
+
 }

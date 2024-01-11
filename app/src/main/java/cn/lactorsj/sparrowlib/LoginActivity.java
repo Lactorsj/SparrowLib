@@ -130,12 +130,10 @@ public class LoginActivity extends AppCompatActivity {
         super.onStart();
         mHelper = UserDatabaseHelper.getInstance(this);
         mHelper.openReadLink();
-//        mHelper.openWriteLink();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-//        mHelper.closeLink();
     }
 }

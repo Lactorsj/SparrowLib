@@ -7,7 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 
 import cn.lactorsj.sparrowlib.database.BookDatabaseHelper;
+import cn.lactorsj.sparrowlib.database.UserDatabaseHelper;
 import cn.lactorsj.sparrowlib.entity.Book;
+import cn.lactorsj.sparrowlib.entity.User;
 import cn.lactorsj.sparrowlib.util.SharedUtil;
 
 
@@ -16,6 +18,8 @@ public class MyApplication extends Application {
     private static MyApplication mApp;
 
     public HashMap<String, String> infoMap;
+    private BookDatabaseHelper bookDatabaseHelper;
+    private UserDatabaseHelper userDatabaseHelper;
 
     public static MyApplication getInstance() {
         return mApp;
@@ -30,15 +34,23 @@ public class MyApplication extends Application {
         infoMap = new HashMap<>();
         initBooksInfo();
     }
-    private void initBooksInfo(){
+
+    private void initBooksInfo() {
         boolean first = SharedUtil.getInstance(this).readBoolean("first", true);
         if (first) {
-            BookDatabaseHelper dbHelper = BookDatabaseHelper.getInstance(this);
+            bookDatabaseHelper = BookDatabaseHelper.getInstance(this);
             List<Book> list = Book.getDefaultList();
-            dbHelper.openWriteLink();
-            dbHelper.insertBooksInfo(list);
-            dbHelper.closeLink();
+            bookDatabaseHelper.openWriteLink();
+            bookDatabaseHelper.insertBooksInfo(list);
+            bookDatabaseHelper.closeLink();
             SharedUtil.getInstance(this).writeBoolean("first", false);
         }
+    }
+
+    @Override
+    public void onTerminate() {
+//        userDatabaseHelper.closeLink();
+//        bookDatabaseHelper.closeLink();
+        super.onTerminate();
     }
 }
