@@ -42,7 +42,7 @@ public class LoginActivity extends AppCompatActivity {
         EditText et_username = findViewById(R.id.et_username);
         EditText et_password = findViewById(R.id.et_password);
 
-//        et_password.setSingleLine();
+
         et_username.setSingleLine();
 
         et_username.setOnEditorActionListener((v, actionId, event) -> {

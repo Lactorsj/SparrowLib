@@ -15,7 +15,7 @@ public class MyApplication extends Application {
 
     private static MyApplication mApp;
 
-    public HashMap<String, String> infoMap;
+    public HashMap<String, String> infoMap; // Global Variables
     private BookDatabaseHelper bookDatabaseHelper;
     private UserDatabaseHelper userDatabaseHelper;
 

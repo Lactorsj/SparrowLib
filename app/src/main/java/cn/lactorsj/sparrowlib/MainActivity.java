@@ -51,7 +51,6 @@ public class MainActivity extends AppCompatActivity {
 
 
         ll_home = findViewById(R.id.ll_home);
-        // 从数据库查询出商品信息，并展示
         showBooks();
 
         Button btn_log_out = findViewById(R.id.btn_log_out);
@@ -66,21 +65,20 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("MissingSuperCall")
     public void onBackPressed() {
         if (backPressedOnce) {
-            backToHomeScreen(); // 如果之前已经按过一次返回键，执行默认的返回操作
+            backToHomeScreen(); // press back twice to back to system Home screen
             return;
         }
 
-        // 第一次按下返回键，显示提示
+        // on backPressedOnce
         Toast.makeText(this, "Press back again to go back to the home screen", Toast.LENGTH_SHORT).show();
 
         backPressedOnce = true;
 
-        // 延迟一段时间后重置 backPressedOnce，这里设置为2秒
+        // after delay reset backPressedOnce
         new Handler().postDelayed(() -> backPressedOnce = false, 2000);
     }
 
     private void backToHomeScreen() {
-        // 使用Intent回到主屏幕
         Intent homeIntent = new Intent(Intent.ACTION_MAIN);
         homeIntent.addCategory(Intent.CATEGORY_HOME);
         homeIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -89,16 +87,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void showBooks() {
 
-        // 查询商品数据库中的所有商品记录
         List<Book> list = BookDBHelper.queryAllBooksInfo();
-
         User user = UserDBHelper.queryUserByUsername(app.infoMap.get("username"));
 
-        // 移除下面的所有子视图
         ll_home.removeAllViews();
         book_views = new ArrayList<>();
         for (Book info : list) {
-            // 获取布局文件item_goods.xml的根视图
+            // Get element layout
             @SuppressLint("InflateParams") View view = LayoutInflater.from(this).inflate(R.layout.element_item_book, null);
             ImageView iv_thumb = view.findViewById(R.id.iv_thumb);
             TextView tv_name = view.findViewById(R.id.tv_name);
@@ -107,35 +102,35 @@ public class MainActivity extends AppCompatActivity {
             Button btn_borrow = view.findViewById(R.id.btn_borrow);
             Button btn_return = view.findViewById(R.id.btn_return);
 
-            // 给控件设置值
+            // set values to TextView and Button
             iv_thumb.setImageResource(info.pic);
             tv_name.setText(info.name);
             tv_author.setText(info.author);
 
             if (UserDBHelper.getCurrentUserStatus()) {//Can borrow books
-                if (info.isAvailable == 1) {
+                if (info.isAvailable == 1) { // available books
                     btn_return.setEnabled(false);
                     btn_borrow.setEnabled(true);
                     tv_is_available.setText(R.string.available);
                     tv_is_available.setTextColor(Color.GRAY);
-                } else {
+                } else { // borrowed by others
                     btn_borrow.setEnabled(false);
                     btn_return.setEnabled(false);
                     tv_is_available.setText(String.format("Not in library: borrowed by %s", info.borrowBy));
                     tv_is_available.setTextColor(Color.RED);
                 }
-            } else {
-                if (info.id != user.book && info.isAvailable == 1) {
+            } else { // cannot borrow books
+                if (info.id != user.book && info.isAvailable == 1) { // available books, return first
                     btn_borrow.setEnabled(false);
                     btn_return.setEnabled(false);
                     tv_is_available.setText(R.string.return_first);
                     tv_is_available.setTextColor(Color.RED);
-                } else if (info.id != user.book && info.isAvailable == 0) {
+                } else if (info.id != user.book && info.isAvailable == 0) { // borrowed by others
                     btn_borrow.setEnabled(false);
                     btn_return.setEnabled(false);
                     tv_is_available.setText(String.format("Not in library: borrowed by %s", info.borrowBy));
                     tv_is_available.setTextColor(Color.RED);
-                } else {
+                } else { // borrowed by you
                     btn_borrow.setEnabled(false);
                     btn_return.setEnabled(true);
                     tv_is_available.setText(R.string.borrowed_by_you);
